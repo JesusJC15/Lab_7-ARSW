@@ -2,8 +2,10 @@ const AppController = (function () {
     
     let author = null;
     let blueprints = [];
-
     let client = apimock;
+
+    const canvas = document.getElementById("blueprintCanvas");
+    const ctx = canvas ? canvas.getContext("2d") : null;
 
     function setBlueprints(bps) {
         blueprints = bps.map(bp => ({
@@ -35,12 +37,9 @@ const AppController = (function () {
         $("#pointsSum").text(total);
     }
 
-
     function drawBlueprint(points) {
-        const canvas = $("#blueprintCanvas")[0];
-        if (!canvas) return;
-        const ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, canvas.width, canvas.height); 
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         if (!points || points.length === 0) return;
 
@@ -55,59 +54,71 @@ const AppController = (function () {
         ctx.lineWidth = 2;
         ctx.stroke();
     }
-    
+
+    // ======================
+    // Nuevo: eventos Canvas
+    // ======================
+    function initCanvasEvents() {
+        if (!canvas) return;
+
+        canvas.addEventListener("pointerdown", function (event) {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            console.log(`Click en Canvas: (${x}, ${y})`);
+
+            // Dibujar un pequeño punto rojo donde se haga click
+            ctx.fillStyle = "red";
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // 🚀 Aquí luego puedes almacenar el punto en el blueprint actual
+        });
+    }
+
     return {
-        
         setClient: function (newClient) {
             client = newClient;
-        }, 
-        
+        },
         setAuthor: function (newAuthor) {
             author = newAuthor;
         },
-
         getAuthor: function () {
             return author;
         },
-
         setBlueprints: function (bps) {
             setBlueprints(bps);
         },
-
         getBlueprints: function () {
-            return [...blueprints]; 
+            return [...blueprints];
         },
-
         getTotalPoints: function () {
             return blueprints.reduce((sum, bp) => sum + bp.pointsCount, 0);
         },
-
         updateBlueprintsFromAuthor: function (authname) {
             author = authname;
-            $("#authorName").text(authname); 
+            $("#authorName").text(authname);
 
-            apimock.getBlueprintsByAuthor(authname, function (bps) {
-                setBlueprints(bps); 
-                updateTable();      
+            client.getBlueprintsByAuthor(authname, function (bps) {
+                setBlueprints(bps);
+                updateTable();
             });
         },
-
         drawBlueprintByName: function (authname, bpname) {
-            apimock.getBlueprintsByNameAndAuthor(authname, bpname, function (bp) {
+            client.getBlueprintsByNameAndAuthor(authname, bpname, function (bp) {
                 if (!bp) return;
 
-                if ($("#currentBlueprint").length === 0) {
-                    $("<h3 id='currentBlueprint'></h3>").insertBefore("#blueprintCanvas");
-                }
                 $("#currentBlueprint").text(`Drawing blueprint: ${bp.name}`);
-
                 drawBlueprint(bp.points);
             });
         },
-
         reset: function () {
             author = null;
             blueprints = [];
-        }
+        },
+        // Nuevo público
+        initCanvasEvents: initCanvasEvents
     };
 })();
