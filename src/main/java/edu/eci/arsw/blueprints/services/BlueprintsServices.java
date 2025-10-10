@@ -80,5 +80,9 @@ public class BlueprintsServices {
         }
         return filtered;
     }
+
+    public void deleteBlueprint(String author, String bpname) throws BlueprintNotFoundException {
+        bpp.deleteBlueprint(author, bpname);
+    }
     
 }

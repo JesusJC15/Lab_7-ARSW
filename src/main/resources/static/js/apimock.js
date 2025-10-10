@@ -26,7 +26,7 @@ apimock=(function(){
 			callback(
 				mockdata[authname].find(function(e){return e.name===bpname})
 			);
-		}
+		},
 	}	
 
 })();

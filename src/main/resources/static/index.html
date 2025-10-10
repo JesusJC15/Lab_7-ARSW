@@ -12,7 +12,7 @@
     </head>
     <body class="bg-light">
 
-        <div class="container mt-4">
+        <div class="container mt-4 table-responsive">
             <h1 class="text-center mb-4">Blueprints</h1>
 
             <div class="row mb-3">
@@ -21,6 +21,9 @@
                 </div>
                 <div class="col-md-2">
                     <button id="getBlueprintsButton" class="btn btn-primary btn-block">Get Blueprints</button>
+                </div>
+                <div class="mb-4 text-center col-md-4">
+                    <button id="createBlueprintButton" class="btn btn-primary">Create New Blueprint</button>
                 </div>
             </div>
 
@@ -46,9 +49,14 @@
                 <h5>Total User Points: <span id="pointsSum">0</span></h5>
             </div>
 
-            <div class="mb-4">
+            <div class="mb-4 text-center">
                 <h4 id="currentBlueprint">Select a blueprint to draw</h4>
                 <canvas id="blueprintCanvas" width="600" height="400" class="border"></canvas>
+            </div>
+
+            <div class="mb-4 text-center">
+                <button id="saveBlueprintButton" class="btn btn-success">Save / Update</button>
+                <button id="deleteBlueprintButton" class="btn btn-danger">Delete Blueprint</button>
             </div>
         </div>
 
@@ -57,17 +65,29 @@
         <script src="js/app.js"></script>
 
         <script>
-
+        $(document).ready(function () {
             $("#getBlueprintsButton").click(function () {
                 let authorName = $("#authorInput").val().trim();
-                if(authorName) {
+                if (authorName) {
                     AppController.updateBlueprintsFromAuthor(authorName);
                 }
             });
 
-            AppController.setClient(apimock);
+            $("#saveBlueprintButton").click(function () {
+                AppController.saveOrUpdateBlueprint();
+            });
 
+            $("#createBlueprintButton").click(function () {
+                AppController.createNewBlueprint();
+            });
+
+            $("#deleteBlueprintButton").click(function () {
+                AppController.deleteCurrentBlueprint();
+            });
+
+            AppController.setClient(apiclient);
             AppController.initCanvasEvents();
+        });
         </script>
 
     </body>
